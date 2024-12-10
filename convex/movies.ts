@@ -68,4 +68,35 @@ export const updateTitleToString = migrations.define({
 
 export const runUpdateTitleToString = migrations.runner(
   internal.movies.updateTitleToString
+
 );
+
+export interface Suggestion {
+  id: string;
+  text: string;
+  position: number;
+}
+
+export const searchMovies = query({
+  args: {
+    searchTerm: v.string(),
+  },
+  handler: async (ctx, args): Promise<Suggestion[]> => {
+    const docs = await ctx.db
+      .query("movies")
+      .withSearchIndex("by_title", (q) =>
+        q.search("title", args.searchTerm)
+      )
+      .take(10);
+
+    return Promise.all(docs.map(async (doc) => {
+      const index = await paginatedSet.indexOfDoc(ctx, doc);
+      return {
+          id: doc._id,
+          text: `${doc.title} (${doc.year})`,
+          position: index,
+        };
+      })
+    );
+  },
+});

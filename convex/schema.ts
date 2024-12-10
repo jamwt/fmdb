@@ -13,5 +13,6 @@ export default defineSchema({
     year: v.number(),
   })
     .index("by_tid", ["tid"])
-    .index("by_year_tid", ["year", "tid"]),
+    .index("by_year_tid", ["year", "tid"])
+    .searchIndex("by_title", { searchField: "title" }),
 });
