@@ -7,10 +7,10 @@ export default defineSchema({
     tid: v.string(),
   }).index("by_tid", ["tid"]),
   movies: defineTable({
-    runtime: v.float64(),
+    runtime: v.number(),
     tid: v.string(),
     title: v.string(),
-    year: v.float64(),
+    year: v.number(),
   })
     .index("by_tid", ["tid"])
     .index("by_year_tid", ["year", "tid"]),
