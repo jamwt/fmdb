@@ -4,6 +4,7 @@ import { DataModel } from "./_generated/dataModel";
 import { TableAggregate } from "@convex-dev/aggregate";
 import { Migrations } from "@convex-dev/migrations";
 import { v } from "convex/values";
+import romans from "romans";
 
 // For pagination.
 const paginatedSet = new TableAggregate<{
@@ -79,7 +80,18 @@ export const updateTitleToString = migrations.define({
 
 export const runUpdateTitleToString = migrations.runner(
   internal.movies.updateTitleToString
+);
 
+export const createFancyYear = migrations.define({
+  table: "movies",
+  migrateOne: async (ctx, doc) => {
+    const year = romans.romanize(doc.year);
+    await ctx.db.patch(doc._id, { fancyYear: year });
+  },
+});
+
+export const runCreateFancyYear = migrations.runner(
+  internal.movies.createFancyYear
 );
 
 export interface Suggestion {
@@ -95,14 +107,13 @@ export const searchMovies = query({
   handler: async (ctx, args): Promise<Suggestion[]> => {
     const docs = await ctx.db
       .query("movies")
-      .withSearchIndex("by_title", (q) =>
-        q.search("title", args.searchTerm)
-      )
+      .withSearchIndex("by_title", (q) => q.search("title", args.searchTerm))
       .take(10);
 
-    return Promise.all(docs.map(async (doc) => {
-      const index = await paginatedSet.indexOfDoc(ctx, doc);
-      return {
+    return Promise.all(
+      docs.map(async (doc) => {
+        const index = await paginatedSet.indexOfDoc(ctx, doc);
+        return {
           id: doc._id,
           text: `${doc.title} (${doc.year})`,
           position: index,

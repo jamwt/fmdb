@@ -11,6 +11,7 @@ export default defineSchema({
     tid: v.string(),
     title: v.string(),
     year: v.number(),
+    fancyYear: v.string(),
   })
     .index("by_tid", ["tid"])
     .index("by_year_tid", ["year", "tid"])

@@ -24,7 +24,7 @@ const MoviePage: React.FC<MoviePageProps> = ({ pageNum, itemsPerPage }) => {
             key={movie._id}
             tid={movie.tid}
             title={movie.title?.toString() ?? ""}
-            year={movie.year?.toString() ?? ""}
+            year={movie.fancyYear}
             length={movie.runtime.toString() ?? ""}
           />
         ))}
