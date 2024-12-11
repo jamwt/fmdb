@@ -25,11 +25,22 @@ export const pageOfMovies = query({
   },
   handler: async (ctx, args) => {
     const { key } = await paginatedSet.at(ctx, args.start);
+    const { page } = await paginatedSet.paginate(ctx, {
+      namespace: undefined,
+      bounds: {
+        lower: {
+          key,
+          inclusive: true,
+        },
+      },
+      pageSize: args.count,
+    });
 
-    return await ctx.db
-      .query("movies")
-      .withIndex("by_year_tid", (q) => q.eq("year", key[0]).gte("tid", key[1]))
-      .take(args.count);
+    return Promise.all(
+      page.map(async (doc) => {
+        return await ctx.db.get(doc.id);
+      })
+    );
   },
 });
 
